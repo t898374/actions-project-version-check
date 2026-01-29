@@ -85,8 +85,7 @@ async function run() {
 
         // get target branch
         const event = JSON.parse(readFileSync(process.env.GITHUB_EVENT_PATH));
-        let targetBranch = getInput('target-branch') != '' ? getInput('target-branch') : 'main';
-        targetBranch = event?.pull_request?.base ? event.pull_request.base.ref : targetBranch;
+        let targetBranch = 'main';
         info('TARGET BRANCH: ' + targetBranch);
 
         // get updated project version
