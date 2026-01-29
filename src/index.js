@@ -86,7 +86,8 @@ async function run() {
         // get target branch
         const event = JSON.parse(readFileSync(process.env.GITHUB_EVENT_PATH));
         let targetBranch = 'main';
-        debug('TARGET BRANCH: ' + targetBranch);
+        debug('::debug:: TARGET BRANCH: ' + targetBranch);
+        console.log('::debug:: TARGET BRANCH: ' + targetBranch);
 
         // get updated project version
         const updatedBranchFileContent = readFileSync(repositoryLocalWorkspace + fileToCheck);
