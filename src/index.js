@@ -1,5 +1,5 @@
 // imports
-import { setFailed, getInput, setOutput } from '@actions/core';
+import { setFailed, getInput, setOutput, debug } from '@actions/core';
 import { getOctokit } from '@actions/github';
 import { Parser } from 'xml2js';
 import { readFileSync } from 'fs';
@@ -86,10 +86,15 @@ async function run() {
         // get target branch
         const event = JSON.parse(readFileSync(process.env.GITHUB_EVENT_PATH));
         const targetBranch = event?.pull_request?.base ? event.pull_request.base.ref : 'main';
+        debug('Target branch: ' + targetBranch);
 
         // get updated project version
         const updatedBranchFileContent = readFileSync(repositoryLocalWorkspace + fileToCheck);
+        debug('Updated branch file content: ' + updatedBranchFileContent);
+
         const fileName = basename(repositoryLocalWorkspace + fileToCheck);
+        debug('File name: ' + fileName);
+
         const updatedProjectVersion = getProjectVersion(updatedBranchFileContent, fileName);
 
         // check version update
