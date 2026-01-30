@@ -91,12 +91,11 @@ async function run() {
         // get updated project version
         debug('Reading updated branch file: ' + repositoryLocalWorkspace + fileToCheck);
         const updatedBranchFileContent = readFileSync(repositoryLocalWorkspace + fileToCheck);
-        debug('Updated branch file content: ' + updatedBranchFileContent);
 
         const fileName = basename(repositoryLocalWorkspace + fileToCheck);
         debug('File name: ' + fileName);
 
-        const updatedProjectVersion = getProjectVersion(updatedBranchFileContent, fileName);
+        const updatedProjectVersion = String(getProjectVersion(updatedBranchFileContent, fileName));
         debug('Updated project version: ' + updatedProjectVersion);
 
         // check version update
@@ -106,7 +105,7 @@ async function run() {
             octokit.rest.repos.getContent({ owner: repositoryOwner, repo: repositoryName, path: fileToCheck, ref: targetBranch, headers: { 'Accept': 'application/vnd.github.v3.raw' } }).then(response => {
                 // get target project version
                 const targetBranchFileContent = response.data;
-                const targetProjectVersion = getProjectVersion(targetBranchFileContent, fileName);
+                const targetProjectVersion = String(getProjectVersion(targetBranchFileContent, fileName));
                 debug('Target project version: ' + targetProjectVersion);
 
                 checkVersionUpdate(targetProjectVersion, updatedProjectVersion, additionalFilesToCheck);
