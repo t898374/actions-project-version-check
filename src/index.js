@@ -1,5 +1,5 @@
 // imports
-import { setFailed, getInput, setOutput, debug } from '@actions/core';
+import { setFailed, getInput, setOutput } from '@actions/core';
 import { getOctokit } from '@actions/github';
 import { Parser } from 'xml2js';
 import { readFileSync } from 'fs';
@@ -85,9 +85,7 @@ async function run() {
 
         // get target branch
         const event = JSON.parse(readFileSync(process.env.GITHUB_EVENT_PATH));
-        let targetBranch = 'main';
-        debug('::debug:: TARGET BRANCH: ' + targetBranch);
-        console.log('::debug:: TARGET BRANCH: ' + targetBranch);
+        const targetBranch = event?.pull_request?.base ? event.pull_request.base.ref : 'main';
 
         // get updated project version
         const updatedBranchFileContent = readFileSync(repositoryLocalWorkspace + fileToCheck);
@@ -102,7 +100,7 @@ async function run() {
                 const targetProjectVersion = getProjectVersion(targetBranchFileContent, fileName);
 
                 checkVersionUpdate(targetProjectVersion, updatedProjectVersion, additionalFilesToCheck);
-            }).catch(error => console.log('Cannot blablabla resolve `' + targetBranch + fileToCheck + '` in target branch! No version check required. ErrMsg => ' + error));
+            }).catch(error => console.log('Cannot resolve `' + fileToCheck + '` in target branch! No version check required. ErrMsg => ' + error));
         }
 
         // set output
