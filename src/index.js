@@ -1,5 +1,5 @@
 // imports
-import { setFailed, getInput, setOutput, debug } from '@actions/core';
+import { setFailed, getInput, setOutput, debug, warn } from '@actions/core';
 import { getOctokit } from '@actions/github';
 import { Parser } from 'xml2js';
 import { readFileSync } from 'fs';
@@ -65,6 +65,8 @@ function checkVersionUpdate(targetVersion, branchVersion, additionalFilesToCheck
 // main
 async function run() {
     try {
+        warn('You should see this warning!');
+
         // setup objects
         const octokit = new getOctokit(getInput('token'));
 
