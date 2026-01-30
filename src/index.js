@@ -43,6 +43,13 @@ function getProjectVersion(fileContent, fileName) {
 }
 
 function checkVersionUpdate(targetVersion, branchVersion, additionalFilesToCheck) {
+    
+    // Verify that targetVersion and branchVersion are strings
+    if (typeof targetVersion !== 'string' || typeof branchVersion !== 'string') {
+        setFailed('Version values must be strings. targetVersion: ' + typeof targetVersion + ', branchVersion: ' + typeof branchVersion);
+        return;
+    }
+    
     const result = semverDiff(targetVersion, branchVersion);
 
     if (!result) {
