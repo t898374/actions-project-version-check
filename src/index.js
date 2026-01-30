@@ -89,6 +89,7 @@ async function run() {
         debug('Target branch: ' + targetBranch);
 
         // get updated project version
+        debug('Reading updated branch file: ' + repositoryLocalWorkspace + fileToCheck);
         const updatedBranchFileContent = readFileSync(repositoryLocalWorkspace + fileToCheck);
         debug('Updated branch file content: ' + updatedBranchFileContent);
 
@@ -96,13 +97,17 @@ async function run() {
         debug('File name: ' + fileName);
 
         const updatedProjectVersion = getProjectVersion(updatedBranchFileContent, fileName);
+        debug('Updated project version: ' + updatedProjectVersion);
 
         // check version update
         if (getInput('only-return-version') == 'false') {
+            debug(repositoryOwner + '/' + repositoryName + ' - ' + fileToCheck + ' @ ' + targetBranch);
+
             octokit.rest.repos.getContent({ owner: repositoryOwner, repo: repositoryName, path: fileToCheck, ref: targetBranch, headers: { 'Accept': 'application/vnd.github.v3.raw' } }).then(response => {
                 // get target project version
                 const targetBranchFileContent = response.data;
                 const targetProjectVersion = getProjectVersion(targetBranchFileContent, fileName);
+                debug('Target project version: ' + targetProjectVersion);
 
                 checkVersionUpdate(targetProjectVersion, updatedProjectVersion, additionalFilesToCheck);
             }).catch(error => console.log('Cannot resolve `' + fileToCheck + '` in target branch! No version check required. ErrMsg => ' + error));
