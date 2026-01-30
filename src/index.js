@@ -15,7 +15,7 @@ function getProjectVersionFromMavenFile(fileContent) {
     let projectVersion;
 
     parser.parseString(fileContent, function (err, result) {
-        projectVersion = String(result.project.version);
+        projectVersion = result.project.version[0];
     });
 
     return projectVersion;
