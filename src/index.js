@@ -1,5 +1,5 @@
 // imports
-import { setFailed, getInput, setOutput, debug } from '@actions/core';
+import { setFailed, getInput, setOutput } from '@actions/core';
 import { getOctokit } from '@actions/github';
 import { Parser } from 'xml2js';
 import { readFileSync } from 'fs';
@@ -43,24 +43,19 @@ function getProjectVersion(fileContent, fileName) {
 }
 
 function checkVersionUpdate(targetVersion, branchVersion, additionalFilesToCheck) {
-    debug('Checking version update from ' + targetVersion + ' to ' + branchVersion);
-    // Verify that targetVersion and branchVersion are strings
-    debug('targetVersion type: ' + typeof targetVersion);
-    debug('branchVersion type: ' + typeof branchVersion);
     const result = semver.diff(targetVersion, branchVersion);
-    debug('semver.diff result: ' + result);
     if (!result) {
         console.log("targetVersion: " + targetVersion);
         console.log("branchVersion: " + branchVersion);
         console.log('semverDiff: ' + result);
-        setFailed('You have to update the project version!');
+        setFailed('You have to update the project version if you want this workflow to continue!');
     }
     else if (additionalFilesToCheck != undefined) {
         additionalFilesToCheck.forEach(file => {
             const fileContent = readFileSync(repositoryLocalWorkspace + file.trim());
 
             if (!fileContent.includes(branchVersion) || fileContent.includes(targetVersion)) {
-                setFailed('You have to update the project version in "' + file + '"!');
+                setFailed('You have to update the project version in "' + file + '"  if you want this workflow to continue!');
             }
         });
     }
@@ -90,27 +85,20 @@ async function run() {
         // get target branch
         const event = JSON.parse(readFileSync(process.env.GITHUB_EVENT_PATH));
         const targetBranch = event?.pull_request?.base ? event.pull_request.base.ref : 'main';
-        debug('Target branch: ' + targetBranch);
 
         // get updated project version
-        debug('Reading updated branch file: ' + repositoryLocalWorkspace + fileToCheck);
         const updatedBranchFileContent = readFileSync(repositoryLocalWorkspace + fileToCheck);
 
         const fileName = basename(repositoryLocalWorkspace + fileToCheck);
-        debug('File name: ' + fileName);
 
         const updatedProjectVersion = String(getProjectVersion(updatedBranchFileContent, fileName));
-        debug('Updated project version: ' + updatedProjectVersion);
 
         // check version update
         if (getInput('only-return-version') == 'false') {
-            debug(repositoryOwner + '/' + repositoryName + ' - ' + fileToCheck + ' @ ' + targetBranch);
-
             octokit.rest.repos.getContent({ owner: repositoryOwner, repo: repositoryName, path: fileToCheck, ref: targetBranch, headers: { 'Accept': 'application/vnd.github.v3.raw' } }).then(response => {
                 // get target project version
                 const targetBranchFileContent = response.data;
                 const targetProjectVersion = String(getProjectVersion(targetBranchFileContent, fileName));
-                debug('Target project version: ' + targetProjectVersion);
 
                 checkVersionUpdate(targetProjectVersion, updatedProjectVersion, additionalFilesToCheck);
             }).catch(error => console.log('Cannot resolve `' + fileToCheck + '` in target branch! No version check required. ErrMsg => ' + error));
