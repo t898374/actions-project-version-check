@@ -104,7 +104,7 @@ async function run() {
                 const targetProjectVersion = getProjectVersion(targetBranchFileContent, fileName);
 
                 checkVersionUpdate(targetProjectVersion, updatedProjectVersion, additionalFilesToCheck);
-            }).catch(error => console.log('Cannot resolve `' + fileToCheck + '` in target branch! No version check required. ErrMsg => ' + error));
+            }).catch(error => console.log('Cannot resolve `' + targetBranch + fileToCheck + '` in target branch! No version check required. ErrMsg => ' + error));
         }
 
         // set output
