@@ -4,7 +4,7 @@ import { getOctokit } from '@actions/github';
 import { Parser } from 'xml2js';
 import { readFileSync } from 'fs';
 import { basename } from 'path';
-import semverDiff from 'semver-diff';
+import semver from 'semver';
 
 // constants
 const repositoryLocalWorkspace = process.env.GITHUB_WORKSPACE + '/';
@@ -35,7 +35,7 @@ function getProjectVersion(fileContent, fileName) {
     }
 
     if (fileName === 'version.txt') {
-        return new String(fileContent).trim();
+        return String(fileContent).trim();
     }
 
     setFailed('"' + fileName + '" is not supported!');
@@ -47,8 +47,8 @@ function checkVersionUpdate(targetVersion, branchVersion, additionalFilesToCheck
     // Verify that targetVersion and branchVersion are strings
     debug('targetVersion type: ' + typeof targetVersion);
     debug('branchVersion type: ' + typeof branchVersion);
-    const result = semverDiff(targetVersion, branchVersion);
-    debug('semverDiff result: ' + result);
+    const result = semver.diff(targetVersion, branchVersion);
+    debug('semver.diff result: ' + result);
     if (!result) {
         console.log("targetVersion: " + targetVersion);
         console.log("branchVersion: " + branchVersion);
